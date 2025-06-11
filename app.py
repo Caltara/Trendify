@@ -1,10 +1,9 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
-import ta
 
-st.set_page_config(page_title="Trendify", layout="wide")
-st.title("📈 Trendify Dashboard")
+st.set_page_config(page_title="Breakout Stock Screener", layout="wide")
+st.title("📈 Breakout Stock Screener Dashboard")
 
 st.markdown("Enter a list of stock tickers and Caltara will scan for bullish breakout signals.")
 
@@ -23,25 +22,32 @@ with st.spinner("📡 Analyzing tickers..."):
                 st.warning(f"No data for {ticker}")
                 continue
 
-            # --- TA indicators ---
-            rsi_indicator = ta.momentum.RSIIndicator(close=df['Close'])
-            df['RSI'] = rsi_indicator.rsi().squeeze()
+            # --- Calculate RSI manually ---
+            delta = df['Close'].diff()
+            gain = delta.where(delta > 0, 0)
+            loss = -delta.where(delta < 0, 0)
+            avg_gain = gain.rolling(window=14).mean()
+            avg_loss = loss.rolling(window=14).mean()
+            rs = avg_gain / avg_loss
+            df['RSI'] = 100 - (100 / (1 + rs))
 
-            macd_indicator = ta.trend.MACD(close=df['Close'])
-            df['MACD'] = macd_indicator.macd().squeeze()
+            # --- Calculate MACD manually ---
+            ema_12 = df['Close'].ewm(span=12, adjust=False).mean()
+            ema_26 = df['Close'].ewm(span=26, adjust=False).mean()
+            df['MACD'] = ema_12 - ema_26
 
             df['Volume_SMA'] = df['Volume'].rolling(10).mean()
             df['High_20'] = df['Close'].rolling(20).max()
 
             df.dropna(inplace=True)
 
-            # --- Get the latest values ---
+            # --- Get latest values ---
             last_close = df['Close'].iloc[-1]
             last_rsi = df['RSI'].iloc[-1]
             last_macd = df['MACD'].iloc[-1]
             last_volume = df['Volume'].iloc[-1]
             last_volume_sma = df['Volume_SMA'].iloc[-1]
-            last_high_20 = df['High_20'].iloc[-2]  # Yesterday's high
+            last_high_20 = df['High_20'].iloc[-2]
 
             # --- Breakout condition ---
             breakout = (
