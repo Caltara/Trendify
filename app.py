@@ -3,8 +3,8 @@ import yfinance as yf
 import pandas as pd
 import ta
 
-st.set_page_config(page_title="Trendify's Reco Report", layout="wide")
-st.title("📈 Trendify's Reco Report Dashboard")
+st.set_page_config(page_title="Trendify", layout="wide")
+st.title("📈 Trendify Dashboard")
 
 st.markdown("Enter a list of stock tickers and Caltara will scan for bullish breakout signals.")
 
