@@ -2,8 +2,8 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 
-st.set_page_config(page_title="📈 Trendify Stock Screener", layout="wide")
-st.title("📊 Trendify's Breakout Stock Screener")
+st.set_page_config(page_title="📈 Breakout Stock Screener", layout="wide")
+st.title("📊 Caltara's Breakout Stock Screener")
 
 st.markdown("Enter tickers to identify potential bullish breakouts based on price, volume, RSI, and MACD.")
 
@@ -42,13 +42,13 @@ with st.spinner("🔍 Scanning stocks..."):
 
             df.dropna(inplace=True)
 
-            # Extract latest values
-            last_close = df['Close'].iloc[-1]
-            last_rsi = df['RSI'].iloc[-1]
-            last_macd = df['MACD'].iloc[-1]
-            last_volume = df['Volume'].iloc[-1]
-            last_volume_sma = df['Volume_SMA'].iloc[-1]
-            yesterday_high_20 = df['High_20'].iloc[-2]
+            # Extract scalar values to avoid Series errors
+            last_close = df['Close'].iloc[-1].item()
+            last_rsi = df['RSI'].iloc[-1].item()
+            last_macd = df['MACD'].iloc[-1].item()
+            last_volume = df['Volume'].iloc[-1].item()
+            last_volume_sma = df['Volume_SMA'].iloc[-1].item()
+            yesterday_high_20 = df['High_20'].iloc[-2].item()
 
             # Breakout logic
             breakout = (
