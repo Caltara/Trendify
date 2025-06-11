@@ -25,25 +25,25 @@ with st.spinner("📡 Analyzing tickers..."):
 
             # --- TA indicators ---
             rsi_indicator = ta.momentum.RSIIndicator(close=df['Close'])
-            df['RSI'] = rsi_indicator.rsi()
+            df['RSI'] = rsi_indicator.rsi().squeeze()
 
             macd_indicator = ta.trend.MACD(close=df['Close'])
-            df['MACD'] = macd_indicator.macd()
+            df['MACD'] = macd_indicator.macd().squeeze()
 
             df['Volume_SMA'] = df['Volume'].rolling(10).mean()
             df['High_20'] = df['Close'].rolling(20).max()
 
-            df.dropna(inplace=True)  # Drop NaNs from rolling/indicators
+            df.dropna(inplace=True)
 
-            # --- Extract latest data ---
+            # --- Get the latest values ---
             last_close = df['Close'].iloc[-1]
             last_rsi = df['RSI'].iloc[-1]
             last_macd = df['MACD'].iloc[-1]
             last_volume = df['Volume'].iloc[-1]
             last_volume_sma = df['Volume_SMA'].iloc[-1]
-            last_high_20 = df['High_20'].iloc[-2]  # Use yesterday’s high
+            last_high_20 = df['High_20'].iloc[-2]  # Yesterday's high
 
-            # --- Breakout logic ---
+            # --- Breakout condition ---
             breakout = (
                 last_close > last_high_20 and
                 last_volume > last_volume_sma and
