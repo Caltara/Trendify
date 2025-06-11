@@ -1,3 +1,7 @@
 streamlit
-pandas
 yfinance
+pandas
+requests
+lxml
+beautifulsoup4
+html5lib
