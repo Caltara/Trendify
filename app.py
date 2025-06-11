@@ -3,7 +3,7 @@ import yfinance as yf
 import pandas as pd
 
 st.set_page_config(page_title="📈 Breakout Stock Screener", layout="wide")
-st.title("📊 Caltara's Breakout Stock Screener")
+st.title("📊 Trendify's Breakout Stock Screener")
 
 st.markdown("Enter tickers to identify potential bullish breakouts based on price, volume, RSI, and MACD.")
 
