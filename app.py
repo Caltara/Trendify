@@ -4,7 +4,7 @@ import pandas as pd
 import ta
 
 st.set_page_config(page_title="Trendify", layout="wide")
-st.title("📈 Breakout Stock Screener Dashboard")
+st.title("📈 Trendify Dashboard")
 
 st.markdown("Enter a list of stock tickers and Caltara will scan for bullish breakout signals.")
 
