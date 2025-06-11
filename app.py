@@ -3,8 +3,8 @@ import yfinance as yf
 import pandas as pd
 import ta
 
-st.set_page_config(page_title="Breakout Stock Screener", layout="wide")
-st.title("📈 Breakout Stock Screener Dashboard")
+st.set_page_config(page_title="Trendify's Reco Report", layout="wide")
+st.title("📈 Trendify's Reco Report Dashboard")
 
 st.markdown("Enter a list of stock tickers and Caltara will scan for bullish breakout signals.")
 
@@ -22,30 +22,41 @@ with st.spinner("📡 Analyzing tickers..."):
             if df.empty:
                 continue
 
-            df['RSI'] = ta.momentum.RSIIndicator(df['Close']).rsi()
-            df['MACD'] = ta.trend.MACD(df['Close']).macd()
-            df['Volume_SMA'] = df['Volume'].rolling(10).mean()
-            df['High20'] = df['Close'].rolling(20).max()
+            # Make sure we drop NaNs after adding indicators
+            df.dropna(inplace=True)
 
-            last = df.iloc[-1]
+            # Calculate indicators as 1D Series
+            rsi = ta.momentum.RSIIndicator(close=df['Close']).rsi()
+            macd = ta.trend.MACD(close=df['Close']).macd()
+            volume_sma = df['Volume'].rolling(10).mean()
+            high_20 = df['Close'].rolling(20).max()
+
+            # Get the last value for breakout logic
+            last_close = df['Close'].iloc[-1]
+            last_rsi = rsi.iloc[-1]
+            last_macd = macd.iloc[-1]
+            last_volume = df['Volume'].iloc[-1]
+            last_volume_sma = volume_sma.iloc[-1]
+            last_high_20 = high_20.iloc[-2]  # Yesterday's high
 
             breakout = (
-                last['Close'] > df['High20'].iloc[-2] and
-                last['Volume'] > last['Volume_SMA'] and
-                50 < last['RSI'] < 70 and
-                last['MACD'] > 0
+                last_close > last_high_20 and
+                last_volume > last_volume_sma and
+                50 < last_rsi < 70 and
+                last_macd > 0
             )
 
             results.append({
                 "Ticker": ticker,
-                "Close Price": round(last['Close'], 2),
-                "RSI": round(last['RSI'], 1),
-                "MACD": round(last['MACD'], 2),
-                "Volume": int(last['Volume']),
+                "Close Price": round(last_close, 2),
+                "RSI": round(last_rsi, 1),
+                "MACD": round(last_macd, 2),
+                "Volume": int(last_volume),
                 "Breakout?": "🚀 Yes" if breakout else "No"
             })
+
         except Exception as e:
-            st.warning(f"Error analyzing {ticker}: {e}")
+            st.warning(f"⚠️ Error analyzing {ticker}: {e}")
 
 # --- Display Results ---
 if results:
